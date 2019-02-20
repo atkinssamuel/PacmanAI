@@ -50,20 +50,11 @@ class ReflexAgent(Agent):
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
-        "Add more of your code here if you want to"
-        #time.sleep(1)
-        print(scores)
-        print(legalMoves)
-        print(chosenIndex)
-
         return legalMoves[chosenIndex]
 
     def evaluationFunction(self, currentGameState, action):
         newSuccessorGameState = currentGameState.generatePacmanSuccessor(action)
-        curPos = currentGameState.getPacmanPosition()
-        newFood = newSuccessorGameState.getFood()
         newGhostStates = newSuccessorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         newPos = newSuccessorGameState.getPacmanPosition()
 
         if newSuccessorGameState.isWin():
@@ -72,8 +63,8 @@ class ReflexAgent(Agent):
         newGhostPositions = []
         for ghostState in newGhostStates:
           newGhostPositions.append(ghostState.getPosition())
-
-        ghostDistances = map(lambda x: manhattanDistance(x, newPos), newGhostPositions)
+        
+        ghostDistances = list(map(lambda x: manhattanDistance(x, newPos), newGhostPositions))
         if min(ghostDistances) == 2:
           return -inf/3
         elif min(ghostDistances) == 1:
@@ -97,9 +88,6 @@ class ReflexAgent(Agent):
                 -1 * newFoodLeft\
                 -1 * (1./ghostDistanceSum)
 
-        #print("Score:", score, "Food left:", foodLeft, "Distance to closest food:", distanceToClosestFood, "New pos:", newPos, "Action:", action)
-        #print("Food list:", foodList)
-        #print("Manhattan food list:", manhattanFoodList)
         return score
 
 
