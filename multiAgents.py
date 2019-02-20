@@ -218,7 +218,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
-
     def getAction(self, gameState):
         def expectimax(state, depth, agentIndex):
           if state.isWin() or state.isLose():
@@ -259,7 +258,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
               else:
                 successorState = state.generateSuccessor(agentIndex, action)
                 totalScore += expectimax(successorState, depth, newAgentIndex)
-            averageScore = totalScore/(state.getNumAgents() - 1)
+            averageScore = totalScore/len(actions)
             return averageScore
         return expectimax(gameState, 0, 0)
 
