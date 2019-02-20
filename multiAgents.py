@@ -129,24 +129,53 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-        """
-          Returns the minimax action from the current gameState using self.depth
-          and self.evaluationFunction.
+        def miniMax(state, depth, agentIndex):
+          if state.isWin() or state.isLose():
+            return state.getScore()
+          if agentIndex == 0: # PAC-MAN node (max node)
+            newAgentIndex = agentIndex + 1
+            maxScore = -inf
+            maxAction = Directions.STOP
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # need to generate scores for each successor:
+            for action in actions:
+              successorState = state.generateSuccessor(agentIndex, action)
+              score = miniMax(successorState, depth, newAgentIndex)
+              if score > maxScore:
+                maxScore = score
+                maxAction = action
+            if depth == 0:
+              return maxAction
+            else:
+              return maxScore
+            return maxScore
+          else:
+            minScore = inf
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # if we are looking at the final ghost, increment the depth:
+            if agentIndex == state.getNumAgents() - 1:
+              depth += 1
+              newAgentIndex = 0
+            else:
+              newAgentIndex = agentIndex + 1
+            # need to generate scores for each successor:
+            for action in actions:
+              # if we are at depth, evaluate the state
+              if depth == self.depth:
+                score = self.evaluationFunction(state.generateSuccessor(agentIndex, action))
+              # otherwise, go deeper
+              else:
+                successorState = state.generateSuccessor(agentIndex, action)
+                score = miniMax(successorState, depth, newAgentIndex)
+              minScore = min(score, minScore)
+            return minScore
+        return miniMax(gameState, 0, 0)
 
-          Here are some method calls that might be useful when implementing minimax.
+    
 
-          gameState.getLegalActions(agentIndex):
-            Returns a list of legal actions for an agent
-            agentIndex=0 means Pacman, ghosts are >= 1
 
-          gameState.generateSuccessor(agentIndex, action):
-            Returns the successor game state after an agent takes an action
-
-          gameState.getNumAgents():
-            Returns the total number of agents in the game
-        """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -288,3 +317,4 @@ def computeAStar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
+            
