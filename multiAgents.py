@@ -220,7 +220,48 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState):
-        util.raiseNotDefined()
+        def expectimax(state, depth, agentIndex):
+          if state.isWin() or state.isLose():
+            return state.getScore()
+          if agentIndex == 0: # PAC-MAN node (max node)
+            newAgentIndex = agentIndex + 1
+            maxScore = -inf
+            maxAction = Directions.STOP
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # need to generate scores for each successor:
+            for action in actions:
+              successorState = state.generateSuccessor(agentIndex, action)
+              score = expectimax(successorState, depth, newAgentIndex)
+              if score > maxScore:
+                maxScore = score
+                maxAction = action
+            if depth == 0:
+              return maxAction
+            else:
+              return maxScore
+          else:
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # if we are looking at the final ghost, increment the depth:
+            if agentIndex == state.getNumAgents() - 1:
+              depth += 1
+              newAgentIndex = 0
+            else:
+              newAgentIndex = agentIndex + 1
+            # need to generate scores for each successor:
+            totalScore = 0
+            for action in actions:
+              # if we are at depth, evaluate the state
+              if depth == self.depth:
+                totalScore += self.evaluationFunction(state.generateSuccessor(agentIndex, action))
+              # otherwise, go deeper
+              else:
+                successorState = state.generateSuccessor(agentIndex, action)
+                totalScore += expectimax(successorState, depth, newAgentIndex)
+            averageScore = totalScore/(state.getNumAgents() - 1)
+            return averageScore
+        return expectimax(gameState, 0, 0)
 
 
 def betterEvaluationFunction(currentGameState):
