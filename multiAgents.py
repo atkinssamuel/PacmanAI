@@ -271,12 +271,14 @@ def betterEvaluationFunction(currentGameState):
 
     if currentGameState.isWin():
       return inf
+    if currentGameState.isLose():
+      return -inf
 
 
     normalGhostPositions = []
     scaredGhostPositions = []
     for ghostState in ghostStates:
-      if ghostState.scaredTimer:
+      if ghostState.scaredTimer > 15:
         scaredGhostPositions.append(ghostState.getPosition())
       else:
         normalGhostPositions.append(ghostState.getPosition())
@@ -309,16 +311,14 @@ def betterEvaluationFunction(currentGameState):
     distanceToNearestFood = min(manhattanFoodList)
 
     foodLeft = len(foodList)
-    capsulesLeft = len(capsuleList)
 
     currentScore = scoreEvaluationFunction(currentGameState)
     score =  1 * currentScore\
-            +1 * 1/(nearestScaredGhost)\
-            -100 * numNormalGhosts\
+            -1 * nearestScaredGhost\
             -1 * distanceToNearestCapsule\
-            -5 * capsulesLeft\
             -1 * distanceToNearestFood\
             -1 * foodLeft\
+            -100 * numNormalGhosts\
             -1 * (1./ghostDistanceSum)
 
     return score
