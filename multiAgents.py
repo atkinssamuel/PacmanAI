@@ -267,34 +267,57 @@ def betterEvaluationFunction(currentGameState):
     ghostStates = currentGameState.getGhostStates()
     pos = currentGameState.getPacmanPosition()
     foodList = currentGameState.getFood().asList()
+    capsuleList = list(currentGameState.getCapsules())
 
     if currentGameState.isWin():
       return inf
-        
-    ghostPositions = []
+
+
+    normalGhostPositions = []
+    scaredGhostPositions = []
     for ghostState in ghostStates:
-      ghostPositions.append(ghostState.getPosition())
-        
-    ghostDistances = list(map(lambda x: manhattanDistance(x, pos), ghostPositions))
-    if min(ghostDistances) == 2:
-      return -inf/3
-    elif min(ghostDistances) == 1:
-      return -2*inf/3
-    elif min(ghostDistances) == 0:
-      return -inf
+      if ghostState.scaredTimer:
+        scaredGhostPositions.append(ghostState.getPosition())
+      else:
+        normalGhostPositions.append(ghostState.getPosition())
 
-    ghostDistanceSum = sum(ghostDistances)
+    normalGhostDistances = list(map(lambda x: manhattanDistance(x, pos), normalGhostPositions))
+    scaredGhostDistances = list(map(lambda x: manhattanDistance(x, pos), scaredGhostPositions))
+    if len(scaredGhostDistances) > 0:
+      nearestScaredGhost = min(scaredGhostDistances)
+    else:
+      nearestScaredGhost = 1
 
+    if len(normalGhostDistances) > 0:  
+      if min(normalGhostDistances) == 1:
+        return -inf/2
+      elif min(normalGhostDistances) == 0:
+        return -inf
+      ghostDistanceSum = sum(normalGhostDistances)
+    else:
+      ghostDistanceSum = 1
 
-    
+    numNormalGhosts = len(normalGhostPositions)
+
+    manhattanCapsuleList = list(map(lambda x: util.manhattanDistance(x, pos), capsuleList))
+    if len(manhattanCapsuleList) > 0:
+      distanceToNearestCapsule = min(manhattanCapsuleList)
+    else:
+      distanceToNearestCapsule = 0
+
     manhattanFoodList = list(map(lambda x: util.manhattanDistance(x, pos), foodList))
-    distanceToClosestFood = min(manhattanFoodList)
+    distanceToNearestFood = min(manhattanFoodList)
 
     foodLeft = len(foodList)
+    capsulesLeft = len(capsuleList)
 
     currentScore = scoreEvaluationFunction(currentGameState)
     score =  1 * currentScore\
-            -1 * distanceToClosestFood\
+            +1 * 1/(nearestScaredGhost)\
+            -100 * numNormalGhosts\
+            -1 * distanceToNearestCapsule\
+            -5 * capsulesLeft\
+            -1 * distanceToNearestFood\
             -1 * foodLeft\
             -1 * (1./ghostDistanceSum)
 
