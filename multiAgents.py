@@ -129,7 +129,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
 
     def getAction(self, gameState):
-        def miniMax(state, depth, agentIndex):
+        def minimax(state, depth, agentIndex):
           if state.isWin() or state.isLose():
             return state.getScore()
           if agentIndex == 0: # PAC-MAN node (max node)
@@ -141,7 +141,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             # need to generate scores for each successor:
             for action in actions:
               successorState = state.generateSuccessor(agentIndex, action)
-              score = miniMax(successorState, depth, newAgentIndex)
+              score = minimax(successorState, depth, newAgentIndex)
               if score > maxScore:
                 maxScore = score
                 maxAction = action
@@ -149,7 +149,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
               return maxAction
             else:
               return maxScore
-            return maxScore
           else:
             minScore = inf
             # need to generate successors
@@ -168,10 +167,10 @@ class MinimaxAgent(MultiAgentSearchAgent):
               # otherwise, go deeper
               else:
                 successorState = state.generateSuccessor(agentIndex, action)
-                score = miniMax(successorState, depth, newAgentIndex)
+                score = minimax(successorState, depth, newAgentIndex)
               minScore = min(score, minScore)
             return minScore
-        return miniMax(gameState, 0, 0)
+        return minimax(gameState, 0, 0)
 
     
 
@@ -188,7 +187,50 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def alphaBetaMinimax(state, depth, agentIndex, alpha, beta):
+          if state.isWin() or state.isLose():
+            return state.getScore()
+          if agentIndex == 0: # PAC-MAN node (max node)
+            newAgentIndex = agentIndex + 1
+            maxAction = Directions.STOP
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # need to generate scores for each successor:
+            for action in actions:
+              successorState = state.generateSuccessor(agentIndex, action)
+              score = alphaBetaMinimax(successorState, depth, newAgentIndex, alpha, beta)
+              if score > alpha:
+                alpha = score
+                maxAction = action
+              if alpha >= beta:
+                break
+            if depth == 0:
+              return maxAction
+            else:
+              return alpha
+          else:
+            # need to generate successors
+            actions = state.getLegalActions(agentIndex)
+            # if we are looking at the final ghost, increment the depth:
+            if agentIndex == state.getNumAgents() - 1:
+              depth += 1
+              newAgentIndex = 0
+            else:
+              newAgentIndex = agentIndex + 1
+            # need to generate scores for each successor:
+            for action in actions:
+              # if we are at depth, evaluate the state
+              if depth == self.depth:
+                score = self.evaluationFunction(state.generateSuccessor(agentIndex, action))
+              # otherwise, go deeper
+              else:
+                successorState = state.generateSuccessor(agentIndex, action)
+                score = alphaBetaMinimax(successorState, depth, newAgentIndex, alpha, beta)
+              beta = min(score, beta)
+              if alpha <= beta:
+                break
+            return beta
+        return alphaBetaMinimax(gameState, 0, 0, -inf, inf)
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -220,6 +262,8 @@ def betterEvaluationFunction(currentGameState):
 
 # Abbreviation
 better = betterEvaluationFunction
+
+
 
 ################################################################################
 ###############################A* implementation:###############################
@@ -317,4 +361,5 @@ def computeAStar(maze, start, end):
 
             # Add the child to the open list
             open_list.append(child)
-            
+
+
