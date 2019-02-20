@@ -124,10 +124,6 @@ class MultiAgentSearchAgent(Agent):
 
 
 class MinimaxAgent(MultiAgentSearchAgent):
-    """
-      Your minimax agent (question 2)
-    """
-
     def getAction(self, gameState):
         def minimax(state, depth, agentIndex):
           if state.isWin() or state.isLose():
@@ -172,21 +168,9 @@ class MinimaxAgent(MultiAgentSearchAgent):
             return minScore
         return minimax(gameState, 0, 0)
 
-    
-
-
-
-
+  
 class AlphaBetaAgent(MultiAgentSearchAgent):
-    """
-      Your minimax agent with alpha-beta pruning (question 3)
-    """
-
     def getAction(self, gameState):
-        """
-          Returns the minimax action using self.depth and self.evaluationFunction
-        """
-        "*** YOUR CODE HERE ***"
         def alphaBetaMinimax(state, depth, agentIndex, alpha, beta):
           if state.isWin() or state.isLose():
             return state.getScore()
@@ -227,25 +211,15 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 successorState = state.generateSuccessor(agentIndex, action)
                 score = alphaBetaMinimax(successorState, depth, newAgentIndex, alpha, beta)
               beta = min(score, beta)
-              if alpha <= beta:
+              if alpha >= beta:
                 break
             return beta
         return alphaBetaMinimax(gameState, 0, 0, -inf, inf)
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
-    """
-      Your expectimax agent (question 4)
-    """
 
     def getAction(self, gameState):
-        """
-          Returns the expectimax action using self.depth and self.evaluationFunction
-
-          All ghosts should be modeled as choosing uniformly at random from their
-          legal moves.
-        """
-        "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
 
